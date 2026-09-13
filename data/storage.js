@@ -3,9 +3,6 @@ import { tarefas as tarefasIniciais } from './tarefas';
 
 const STORAGE_KEY = '@to-do-dev:tarefas';
 
-// Carrega as tarefas do AsyncStorage.
-// Na primeira execução (chave ainda não existe), popula o storage
-// com os dados iniciais mockados (Fase 1) para não abrir o app vazio.
 export async function carregarTarefas() {
   try {
     const json = await AsyncStorage.getItem(STORAGE_KEY);
@@ -20,7 +17,6 @@ export async function carregarTarefas() {
   }
 }
 
-// Sobrescreve a lista completa de tarefas no AsyncStorage.
 export async function salvarTarefas(tarefas) {
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas));
@@ -29,7 +25,6 @@ export async function salvarTarefas(tarefas) {
   }
 }
 
-// Adiciona uma nova tarefa à lista persistida e retorna a lista atualizada.
 export async function adicionarTarefa(novaTarefa) {
   const tarefas = await carregarTarefas();
   const atualizadas = [...tarefas, novaTarefa];
@@ -37,7 +32,6 @@ export async function adicionarTarefa(novaTarefa) {
   return atualizadas;
 }
 
-// Atualiza o status de uma tarefa específica (pelo id) e persiste a mudança.
 export async function atualizarStatusTarefa(id, novoStatus) {
   const tarefas = await carregarTarefas();
   const atualizadas = tarefas.map((tarefa) =>
