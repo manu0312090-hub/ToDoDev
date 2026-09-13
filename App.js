@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import ListScreen from './screens/ListScreen';
 import DetailScreen from './screens/DetailScreen';
+import AddTaskScreen from './screens/AddTaskScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,11 @@ export default function App() {
           name="Detalhe"
           component={DetailScreen}
           options={{ title: 'Detalhes da Tarefa' }}
+        />
+        <Stack.Screen
+          name="Adicionar"
+          component={AddTaskScreen}
+          options={{ title: 'Nova Tarefa', presentation: 'modal' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
