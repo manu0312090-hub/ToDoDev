@@ -1,4 +1,3 @@
-// Opções e cores de status compartilhadas entre as telas.
 export const STATUS_OPCOES = ['Pendente', 'Em andamento', 'Concluída'];
 
 export const STATUS_COLORS = {
