@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,23 +6,41 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { tarefas } from '../data/tarefas';
-
-const STATUS_COLORS = {
-  Pendente: '#FFB020',
-  'Em andamento': '#5B6CF9',
-  Concluída: '#2E7D32',
-};
+import { useFocusEffect } from '@react-navigation/native';
+import { carregarTarefas } from '../data/storage';
+import { STATUS_COLORS } from '../data/status';
 
 export default function ListScreen({ navigation }) {
+  const [tarefas, setTarefas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+
+  // Recarrega as tarefas do AsyncStorage sempre que a tela ganha foco
+  // (ex.: ao voltar da tela de Adicionar ou de Detalhe, após uma mudança).
+  useFocusEffect(
+    useCallback(() => {
+      let ativo = true;
+
+      (async () => {
+        setCarregando(true);
+        const dados = await carregarTarefas();
+        if (ativo) {
+          setTarefas(dados);
+          setCarregando(false);
+        }
+      })();
+
+      return () => {
+        ativo = false;
+      };
+    }, [])
+  );
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() =>
-        navigation.navigate('Detalhe', { id: item.id, titulo: item.titulo })
-      }
+      onPress={() => navigation.navigate('Detalhe', { id: item.id })}
     >
       <Text style={styles.titulo}>{item.titulo}</Text>
       <View
@@ -38,18 +56,30 @@ export default function ListScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={tarefas}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      {carregando ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#5B6CF9" />
+        </View>
+      ) : (
+        <FlatList
+          data={tarefas}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Nenhuma tarefa ainda.</Text>
+              <Text style={styles.emptySubtext}>
+                Toque no botão + para adicionar a primeira.
+              </Text>
+            </View>
+          }
+        />
+      )}
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() =>
-          Alert.alert('Em breve', 'A funcionalidade de adicionar tarefas chega na próxima fase!')
-        }
+        onPress={() => navigation.navigate('Adicionar')}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -59,7 +89,11 @@ export default function ListScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F6FA' },
-  listContent: { padding: 16 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  listContent: { padding: 16, flexGrow: 1 },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 },
+  emptyText: { fontSize: 16, fontWeight: '600', color: '#1C1C1E', marginBottom: 4 },
+  emptySubtext: { fontSize: 14, color: '#8E8E93' },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
