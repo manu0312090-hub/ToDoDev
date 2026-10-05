@@ -1,3 +1,19 @@
+
+<!-- PAM-CI-NOTA-INICIO -->
+### Nota atual (automática) — TODO DEV (lista de tarefas)
+
+[![CI](https://github.com/manu0312090-hub/ToDoDev-/actions/workflows/pam-ci.yml/badge.svg)](https://github.com/manu0312090-hub/ToDoDev-/actions/workflows/pam-ci.yml) [![Nota](https://img.shields.io/badge/Nota%20PAM%20I-R-orange)](https://github.com/manu0312090-hub/ToDoDev-/actions/workflows/pam-ci.yml)
+
+**R** — Regular · **40%** (22/55 pontos) · atualizado em 2026-10-05 23:21
+
+| Fase | Pontos |
+|------|--------|
+| Fase 1 — Estrutura | 8/10 |
+| Fase 2 — AsyncStorage | 12/15 |
+| Fase 3 — SQLite | 2/30 |
+
+Checklist item a item em [NOTA.md](NOTA.md) · [ver a rodada mais recente no Actions](https://github.com/manu0312090-hub/ToDoDev-/actions/workflows/pam-ci.yml)
+<!-- PAM-CI-NOTA-FIM -->
 > Why do I have a folder named ".expo" in my project?
 
 The ".expo" folder is created when an Expo project is started using "expo start" command.
