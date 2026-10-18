@@ -1,13 +1,57 @@
-> Why do I have a folder named ".expo" in my project?
+# To Do Dev — Fase 3
 
-The ".expo" folder is created when an Expo project is started using "expo start" command.
+App de lista de tarefas para estudantes e universitários, em React Native + Expo.
 
-> What do the files contain?
+## Escopo desta entrega (Fase 3 — SQLite)
 
-- "devices.json": contains information about devices that have recently opened this project. This is used to populate the "Development sessions" list in your development builds.
-- "settings.json": contains the server configuration that is used to serve the application manifest.
+- **Banco SQLite** (`expo-sqlite`): o arquivo `to-do-dev.db` e a tabela `tarefas` são criados automaticamente ao abrir o app. Na primeira execução a tabela é populada com as 3 tarefas iniciais da Fase 1 (uma única vez, controlado por `PRAGMA user_version`).
+- **CRUD completo**: criar (tela Adicionar), listar (tela Lista), editar (botão Editar no Detalhe, reaproveitando o formulário) e excluir (botão Excluir, **com confirmação** via `Alert.alert`).
+- **Filtros por status** na lista: Todas / Pendente / Em andamento / Concluída (`WHERE status = ?`).
+- A tela Detalhe continua permitindo alterar só o status rapidamente.
 
-> Should I commit the ".expo" folder?
+## Banco de dados
 
-No, you should not share the ".expo" folder. It does not contain any information that is relevant for other developers working on the project, it is specific to your machine.
-Upon project creation, the ".expo" folder is already added to your ".gitignore" file.
+Toda a lógica está em `data/database.js` (substitui o antigo `data/storage.js` e o AsyncStorage):
+
+| Função | Operação |
+|---|---|
+| `carregarTarefas(status?)` | READ (lista, com filtro opcional) |
+| `buscarTarefa(id)` | READ (uma tarefa) |
+| `adicionarTarefa(dados)` | CREATE |
+| `atualizarTarefa(id, dados)` | UPDATE (título, descrição, status) |
+| `atualizarStatusTarefa(id, status)` | UPDATE (só status) |
+| `excluirTarefa(id)` | DELETE |
+
+Tabela: `tarefas(id INTEGER PK AUTOINCREMENT, titulo TEXT NOT NULL, descricao TEXT, status TEXT NOT NULL DEFAULT 'Pendente')`.
+
+## Como rodar no Expo Go
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   npx expo install expo-sqlite
+   ```
+
+2. Inicie o servidor:
+   ```bash
+   npx expo start
+   ```
+
+3. Abra o **Expo Go** no celular e escaneie o QR code (celular e computador na mesma rede Wi-Fi).
+
+## Estrutura
+
+```
+to-do-dev/
+├── App.js                    # Navegação (stack: Lista ↔ Detalhe ↔ Adicionar)
+├── app.json
+├── data/
+│   ├── tarefas.js             # Dados iniciais (seed) usados na primeira execução
+│   ├── status.js              # Opções e cores de status compartilhadas
+│   └── database.js            # SQLite: abertura do banco, tabela e CRUD
+├── screens/
+│   ├── ListScreen.js          # Lista + filtros por status + botão "Adicionar"
+│   ├── DetailScreen.js        # Detalhe + alterar status + Editar + Excluir (com confirmação)
+│   └── AddTaskScreen.js       # Formulário de criar/editar tarefa
+└── package.json
+```
