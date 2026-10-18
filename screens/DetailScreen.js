@@ -6,9 +6,10 @@ import {
   StyleSheet,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { carregarTarefas, atualizarStatusTarefa } from '../data/storage';
+import { buscarTarefa, atualizarStatusTarefa, excluirTarefa } from '../data/database';
 import { STATUS_OPCOES, STATUS_COLORS } from '../data/status';
 
 export default function DetailScreen({ navigation, route }) {
@@ -17,18 +18,19 @@ export default function DetailScreen({ navigation, route }) {
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
 
-
   useFocusEffect(
     useCallback(() => {
       let ativo = true;
 
       (async () => {
         setCarregando(true);
-        const tarefas = await carregarTarefas();
-        const encontrada = tarefas.find((t) => t.id === id);
-        if (ativo) {
-          setTarefa(encontrada ?? null);
-          setCarregando(false);
+        try {
+          const encontrada = await buscarTarefa(id);
+          if (ativo) setTarefa(encontrada);
+        } catch (erro) {
+          console.error('Erro ao buscar tarefa:', erro);
+        } finally {
+          if (ativo) setCarregando(false);
         }
       })();
 
@@ -42,9 +44,34 @@ export default function DetailScreen({ navigation, route }) {
     if (!tarefa || novoStatus === tarefa.status || atualizando) return;
 
     setAtualizando(true);
-    await atualizarStatusTarefa(tarefa.id, novoStatus);
-    setTarefa((atual) => ({ ...atual, status: novoStatus }));
-    setAtualizando(false);
+    try {
+      await atualizarStatusTarefa(tarefa.id, novoStatus);
+      setTarefa((atual) => ({ ...atual, status: novoStatus }));
+    } catch (erro) {
+      console.error('Erro ao atualizar status:', erro);
+      Alert.alert('Erro', 'Não foi possível alterar o status.');
+    } finally {
+      setAtualizando(false);
+    }
+  };
+
+  const handleExcluir = () => {
+    Alert.alert('Excluir', 'Tem certeza que deseja excluir esta tarefa?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await excluirTarefa(tarefa.id);
+            navigation.goBack();
+          } catch (erro) {
+            console.error('Erro ao excluir tarefa:', erro);
+            Alert.alert('Erro', 'Não foi possível excluir a tarefa.');
+          }
+        },
+      },
+    ]);
   };
 
   if (carregando) {
@@ -108,6 +135,21 @@ export default function DetailScreen({ navigation, route }) {
             })}
           </View>
         </View>
+
+        <View style={styles.acoesRow}>
+          <TouchableOpacity
+            style={[styles.acaoBotao, styles.editarBotao]}
+            onPress={() => navigation.navigate('Adicionar', { id: tarefa.id })}
+          >
+            <Text style={styles.editarTexto}>Editar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.acaoBotao, styles.excluirBotao]}
+            onPress={handleExcluir}
+          >
+            <Text style={styles.excluirTexto}>Excluir</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -148,6 +190,18 @@ const styles = StyleSheet.create({
   },
   statusOpcaoTexto: { fontSize: 13, fontWeight: '600', color: '#3A3A3C' },
   statusOpcaoTextoSelecionado: { color: '#fff' },
+  acoesRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  acaoBotao: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: 14,
+    borderWidth: 1,
+  },
+  editarBotao: { backgroundColor: '#5B6CF9', borderColor: '#5B6CF9' },
+  editarTexto: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  excluirBotao: { backgroundColor: '#fff', borderColor: '#D32F2F' },
+  excluirTexto: { color: '#D32F2F', fontSize: 16, fontWeight: '600' },
   backButton: {
     backgroundColor: '#fff',
     borderRadius: 10,
