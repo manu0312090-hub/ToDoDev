@@ -9,32 +9,35 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { carregarTarefas } from '../data/storage';
-import { STATUS_COLORS } from '../data/status';
+import { carregarTarefas } from '../data/database';
+import { STATUS_OPCOES, STATUS_COLORS } from '../data/status';
+const FILTROS = [{ rotulo: 'Todas', valor: null }, ...STATUS_OPCOES.map((s) => ({ rotulo: s, valor: s }))];
 
 export default function ListScreen({ navigation }) {
   const [tarefas, setTarefas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [filtro, setFiltro] = useState(null);
 
-  // Recarrega as tarefas do AsyncStorage sempre que a tela ganha foco
-  // (ex.: ao voltar da tela de Adicionar ou de Detalhe, após uma mudança).
   useFocusEffect(
     useCallback(() => {
       let ativo = true;
 
       (async () => {
         setCarregando(true);
-        const dados = await carregarTarefas();
-        if (ativo) {
-          setTarefas(dados);
-          setCarregando(false);
+        try {
+          const dados = await carregarTarefas(filtro);
+          if (ativo) setTarefas(dados);
+        } catch (erro) {
+          console.error('Erro ao carregar tarefas:', erro);
+        } finally {
+          if (ativo) setCarregando(false);
         }
       })();
 
       return () => {
         ativo = false;
       };
-    }, [])
+    }, [filtro])
   );
 
   const renderItem = ({ item }) => (
@@ -56,6 +59,27 @@ export default function ListScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.filtros}>
+        {FILTROS.map(({ rotulo, valor }) => {
+          const ativo = valor === filtro;
+          return (
+            <TouchableOpacity
+              key={rotulo}
+              style={[
+                styles.chip,
+                ativo && {
+                  backgroundColor: valor ? STATUS_COLORS[valor] : '#1C1C1E',
+                  borderColor: valor ? STATUS_COLORS[valor] : '#1C1C1E',
+                },
+              ]}
+              onPress={() => setFiltro(valor)}
+            >
+              <Text style={[styles.chipTexto, ativo && styles.chipTextoAtivo]}>{rotulo}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
       {carregando ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#5B6CF9" />
@@ -63,14 +87,18 @@ export default function ListScreen({ navigation }) {
       ) : (
         <FlatList
           data={tarefas}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Nenhuma tarefa ainda.</Text>
+              <Text style={styles.emptyText}>
+                {filtro ? `Nenhuma tarefa "${filtro}".` : 'Nenhuma tarefa ainda.'}
+              </Text>
               <Text style={styles.emptySubtext}>
-                Toque no botão + para adicionar a primeira.
+                {filtro
+                  ? 'Troque o filtro para ver as outras.'
+                  : 'Toque no botão + para adicionar a primeira.'}
               </Text>
             </View>
           }
@@ -89,6 +117,19 @@ export default function ListScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F6FA' },
+  filtros: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, paddingTop: 8 },
+  chip: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    backgroundColor: '#fff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  chipTexto: { fontSize: 13, fontWeight: '600', color: '#3A3A3C' },
+  chipTextoAtivo: { color: '#fff' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   listContent: { padding: 16, flexGrow: 1 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 },
