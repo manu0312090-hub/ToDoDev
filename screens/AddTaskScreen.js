@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,16 +9,41 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
-import { adicionarTarefa } from '../data/storage';
+import { adicionarTarefa, atualizarTarefa, buscarTarefa } from '../data/database';
 import { STATUS_OPCOES, STATUS_COLORS } from '../data/status';
 
-export default function AddTaskScreen({ navigation }) {
+const SEM_DESCRICAO = 'Sem descrição informada.';
+
+export default function AddTaskScreen({ navigation, route }) {
+  const idEdicao = route.params?.id ?? null;
+  const editando = idEdicao !== null;
+
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState(STATUS_OPCOES[0]);
   const [erroTitulo, setErroTitulo] = useState('');
   const [salvando, setSalvando] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({ title: editando ? 'Editar Tarefa' : 'Nova Tarefa' });
+  }, [navigation, editando]);
+
+  useEffect(() => {
+    if (!editando) return;
+    let ativo = true;
+    (async () => {
+      const tarefa = await buscarTarefa(idEdicao);
+      if (!ativo || !tarefa) return;
+      setTitulo(tarefa.titulo);
+      setDescricao(tarefa.descricao === SEM_DESCRICAO ? '' : tarefa.descricao ?? '');
+      setStatus(tarefa.status);
+    })();
+    return () => {
+      ativo = false;
+    };
+  }, [editando, idEdicao]);
 
   const handleSalvar = async () => {
     const tituloLimpo = titulo.trim();
@@ -31,17 +56,24 @@ export default function AddTaskScreen({ navigation }) {
     setErroTitulo('');
     setSalvando(true);
 
-    const novaTarefa = {
-      id: Date.now().toString(),
+    const dados = {
       titulo: tituloLimpo,
       status,
-      descricao: descricao.trim() || 'Sem descrição informada.',
+      descricao: descricao.trim() || SEM_DESCRICAO,
     };
 
-    await adicionarTarefa(novaTarefa);
-
-    setSalvando(false);
-    navigation.goBack();
+    try {
+      if (editando) {
+        await atualizarTarefa(idEdicao, dados);
+      } else {
+        await adicionarTarefa(dados);
+      }
+      navigation.goBack();
+    } catch (erro) {
+      console.error('Erro ao salvar tarefa:', erro);
+      Alert.alert('Erro', 'Não foi possível salvar a tarefa. Tente novamente.');
+      setSalvando(false);
+    }
   };
 
   return (
@@ -109,7 +141,7 @@ export default function AddTaskScreen({ navigation }) {
           disabled={salvando}
         >
           <Text style={styles.botaoSalvarTexto}>
-            {salvando ? 'Salvando...' : 'Salvar tarefa'}
+            {salvando ? 'Salvando...' : editando ? 'Salvar alterações' : 'Salvar tarefa'}
           </Text>
         </TouchableOpacity>
       </SafeAreaView>
