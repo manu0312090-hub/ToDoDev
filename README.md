@@ -71,3 +71,18 @@ to-do-dev/
 │   └── AddTaskScreen.js       # Formulário de criar/editar tarefa
 └── package.json
 ```
+
+
+---
+
+## Colaboração por integrante
+
+> *Excluídos: commits do professor Jackson Sá (wendelmax), `github-actions[bot]` e `dependabot[bot]`. Contagem com base em `git log --no-merges`.*
+
+| # | Integrante | Commits | Participação |
+|---|------------|---------|--------------|
+| 1 | manu0312090-hub | 23 | 60.5% ████████████░░░░░░░░ |
+| 2 | felipefonseca2079 | 10 | 26.3% █████░░░░░░░░░░░░░░░ |
+| 3 | emanuelle donato | 5 | 13.2% ██░░░░░░░░░░░░░░░░░░ |
+
+**Total de commits considerados:** 38
