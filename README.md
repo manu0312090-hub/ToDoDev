@@ -5,9 +5,9 @@ App de lista de tarefas para estudantes e universitários, em React Native + Exp
 <!-- PAM-CI-NOTA-INICIO -->
 ### Nota atual (automática) — TODO DEV (lista de tarefas)
 
-[![CI](https://github.com/ORG/REPO/actions/workflows/pam-ci.yml/badge.svg)](https://github.com/ORG/REPO/actions/workflows/pam-ci.yml) [![Nota](https://img.shields.io/badge/Nota%20PAM%20I-MB-green)](https://github.com/ORG/REPO/actions/workflows/pam-ci.yml)
+[![CI](https://github.com/manu0312090-hub/ToDoDev/actions/workflows/pam-ci.yml/badge.svg)](https://github.com/manu0312090-hub/ToDoDev/actions/workflows/pam-ci.yml) [![Nota](https://img.shields.io/badge/Nota%20PAM%20I-MB-green)](https://github.com/manu0312090-hub/ToDoDev/actions/workflows/pam-ci.yml)
 
-**MB** — Muito bom · **86%** (86/100 pontos) · atualizado em 2026-11-10 01:28
+**MB** — Muito bom · **86%** (86/100 pontos) · atualizado em 2026-11-16 22:27
 
 | Fase | Pontos |
 |------|--------|
@@ -16,7 +16,7 @@ App de lista de tarefas para estudantes e universitários, em React Native + Exp
 | Fase 3 — SQLite | 28/30 |
 | Fase 4 — Versão Final (UX e Dispositivo) | 36/45 |
 
-Checklist item a item em [NOTA.md](NOTA.md) · [ver a rodada mais recente no Actions](https://github.com/ORG/REPO/actions/workflows/pam-ci.yml)
+Checklist item a item em [NOTA.md](NOTA.md) · [ver a rodada mais recente no Actions](https://github.com/manu0312090-hub/ToDoDev/actions/workflows/pam-ci.yml)
 <!-- PAM-CI-NOTA-FIM -->
 
 ## Escopo desta entrega (Fase 3 — SQLite)
