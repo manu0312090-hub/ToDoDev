@@ -5,11 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "plugins": ["expo-notifications"],
-    "splash": {
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "plugins": [
+      "expo-notifications",
+      "expo-font",
+      "expo-sqlite",
+      "@react-native-community/datetimepicker"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
